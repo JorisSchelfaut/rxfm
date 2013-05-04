@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <title></title>
+        <link rel="stylesheet" href="https://s3.amazonaws.com/codiqa-cdn/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <script type="text/javascript" src="https://s3.amazonaws.com/codiqa-cdn/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="https://s3.amazonaws.com/codiqa-cdn/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+        <script type="text/javascript" src="js/lastfm/lastfm.api.md5.js"></script>
+        <script type="text/javascript" src="js/lastfm/lastfm.api.cache.js"></script>
+        <script type="text/javascript" src="js/lastfm/lastfm.api.js"></script>
+        <script type="text/javascript" src="js/friends.js"></script>
+    </head>
+    <body>
+        
+        <!-- Home -->
+        <div data-role="page" id="page1">
+            <div data-theme="a" data-role="header">
+                <h3>
+                    RX.fm
+                </h3>
+            </div>
+            <div data-role="content">
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a href="index.html" data-transition="fade" data-theme="" data-icon="">
+                                Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="feed.html" data-transition="fade" data-theme="" data-icon="">
+                                Feed
+                            </a>
+                        </li>
+                        <li>
+                            <a href="friends.html" data-transition="fade" data-theme="" data-icon="" class="ui-btn-active ui-state-persist">
+                                Friends
+                            </a>
+                        </li>
+                        <li>
+                            <a href="settings.html" data-transition="fade" data-theme="" data-icon="">
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="friends">
+                    <ul data-role="listview" id="friends-list"  data-divider-theme="b" data-inset="true">
+                        <li data-role="list-divider" role="heading">
+                            Friends
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="footer"></div>
+        </div>
+    </body>
+</html>
