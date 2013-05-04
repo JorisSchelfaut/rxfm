@@ -28,7 +28,7 @@ LAST_FM.user.getShouts({
         if (data.shouts.shout) {
             if (data.shouts.shout[0]) {
                 for (var i = 0; i < data.shouts.shout.length; i++) {
-                    if (filter(data.shouts.shout[i])) {
+                    if (filter(data.shouts.shout[i], ACTIVE_USER.toString())) {
                         html += '<li data-theme="c"><a href="#page1" data-transition="slide">'
                                 + body_status(data.shouts.shout[i].body)
                                 + '</a></li>';
@@ -48,17 +48,23 @@ LAST_FM.user.getShouts({
 });
 
 /**
- * Filters on author: must be the same as the active user.
+ * Filters on author: must be the same as the provided author.
  * Filters on body, must contain @RXFM
- * @param {type} shout
+ * @param {Object} shout
+ * @param {String} author
  * @returns {Boolean}
  */
-filter = function (shout) {
-    if (shout.author.toString() === ACTIVE_USER.toString())
+filter = function (shout, author) {
+    if (shout.author.toString() === author)
         if (shout.body.indexOf(CHANNEL) !== -1) return true;
     return false;
 };
 
+/**
+ * Generates a status from the encoded string.
+ * @param {type} body
+ * @returns {String}
+ */
 body_status = function (body) {
     var json = eval("(" + body.replace(/@RXFM/, '') + ')');
     return 'I\'m looking for music similar to <em>' + json.artist + '</em>! ' + json.message;
