@@ -1,5 +1,4 @@
 var DEBUG           = true;
-var WALL            = {};
 var ACTIVE_USER     = 'soundsuggest';
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
@@ -49,32 +48,25 @@ LAST_FM.user.getShouts({
     user : ACTIVE_USER
 }, {
     success : function(data) {
-        if (data.shouts.shout[0]) {
-            for (var i = 0; i < data.shouts.shout.length; i++) {
-                if (filter(data.shouts.shout[i])) {
-                    
-                    var shout = shout_json(data.shouts.shout[i]);
-                    shout.author = data.shouts.shout[i].author;
-                    
-                    if (! WALL[shout.status_id]) WALL[shout.status_id] = {};
-                    if (! WALL[shout.status_id].replies) WALL[shout.status_id].replies = new Array();
-                    if (shout.author.toString() === ACTIVE_USER.toString()) {
-                        WALL[shout.status_id].status = shout;
-                    } else {
-                        WALL[shout.status_id].replies.push(shout);
-                    }
+        var WALL = {};
+        var shouts = lastFM_user_getShouts(data);
+        for (var i = 0; i < shouts.length; i++) {
+            if (filter(shouts[i])) {
+                var shout = shout_json(shouts[i]);
+                shout.author = shouts[i].author;
+                if (! WALL[shout.status_id]) WALL[shout.status_id] = { replies : new Array() };
+                if (shout.author.toString() === ACTIVE_USER.toString()) {
+                    WALL[shout.status_id].status = shout;
+                } else {
+                    WALL[shout.status_id].replies.push(shout);
                 }
             }
-            
-            var html = '';
-            for (var key in WALL) {
-                html += statuslayout(WALL[key]);
-            }
-            
-            $('#shouts-list').append(html).listview('refresh');
-        } else {
-            if (DEBUG) console.log('You have no shouts. Sorry.');
         }
+        var html = '';
+        for (var key in WALL) {
+            html += statuslayout(WALL[key]);
+        }
+        $('#shouts-list').append(html).listview('refresh');
     },
     error : function (data) {
         console.log(data.error + ' : ' + data.message);
@@ -82,7 +74,6 @@ LAST_FM.user.getShouts({
 });
 
 /**
- * Filters on author: must be the same as the provided author.
  * Filters on body, must contain @RXFM
  * @param {Object} shout
  * @returns {Boolean}

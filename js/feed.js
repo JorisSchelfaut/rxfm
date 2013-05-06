@@ -31,34 +31,30 @@ jQuery(document).ready(function() {
                 if (Number(index) === Number(friends.length)) {
                     return;
                 }
-
+                var AUTHOR = friends[index].name;
                 LAST_FM.user.getShouts({
-                    user : friends[index].name
+                    user : AUTHOR
                 }, {
                     success : function(data) {
-                        var html = '';
-                        if (data.shouts.shout) {
-                            if (data.shouts.shout[0]) {
-                                for (var i = 0; i < data.shouts.shout.length; i++) {
-                                    if (filter(data.shouts.shout[i], friends[index].name)) {
-                                        html += '<li data-theme="c"><a href="#page1" data-transition="slide">'
-                                                + body_status(data.shouts.shout[i].body)
-                                                + '</a></li>';
-                                    }
-                                }
-                            } else {
-                                if (filter(data.shouts.shout, friends[index].name)) {
-                                    html += '<li data-theme="c"><a href="#page1" data-transition="slide">'
-                                            + body_status(data.shouts.shout.body)
-                                            + '</a></li>';
+                        var WALL = {};
+                        var shouts = lastFM_user_getShouts(data);
+                        for (var i = 0; i < shouts.length; i++) {
+                            if (filter(shouts[i])) {
+                                var shout = shout_json(shouts[i]);
+                                shout.author = shouts[i].author;
+                                if (! WALL[shout.status_id]) WALL[shout.status_id] = { replies : new Array() };
+                                if (shout.author.toString() === AUTHOR.toString()) {
+                                    WALL[shout.status_id].status = shout;
                                 } else {
-                                    //if (DEBUG) console.log('Shout was not accepted : "' + data.shouts.shout.body + '"');
+                                    WALL[shout.status_id].replies.push(shout);
                                 }
                             }
-                            $('#shouts-list').append(html).listview('refresh');
-                        } else {
-                            if (DEBUG) console.log('You have no shouts. Sorry.');
                         }
+                        var html = '';
+                        for (var key in WALL) {
+                            html += statuslayout(WALL[key]);
+                        }
+                        $('#shouts-list').append(html).listview('refresh');
                         index++;
                         getShouts(friends, index);
                     },
@@ -68,28 +64,51 @@ jQuery(document).ready(function() {
                 });
                 return;
             };
-
+        
             /**
-             * Filters on author: must be the same as the provided author.
              * Filters on body, must contain @RXFM
              * @param {Object} shout
-             * @param {String} author
              * @returns {Boolean}
              */
-            filter = function (shout, author) {
-                if (shout.author.toString() === author)
-                    if (shout.body.indexOf(CHANNEL) !== -1) return true;
+            filter = function (shout) {
+                if (shout.body.indexOf(CHANNEL) !== -1)
+                    return true;
                 return false;
             };
 
             /**
-             * Generates a status from the encoded string.
-             * @param {type} body
+             * Generates a status from the JSON encoded string.
+             * @param {type} shout
+             * @returns {eval}
+             */
+            shout_json = function (shout) {
+                return eval("(" + shout.body.replace(/@RXFM/, '') + ')');
+            };
+
+            /**
+             * Generates a status from the JavaScript object.
+             * @param {type} obj
              * @returns {String}
              */
-            body_status = function (body) {
-                var json = eval("(" + body.replace(/@RXFM/, '') + ')');
-                return 'I\'m looking for music similar to <em>' + json.artist + '</em>! ' + json.message;
+            statuslayout = function (obj) {
+                var html = '';
+                var status = obj.status;
+                var replies = obj.replies;
+
+                html += '<li data-theme="c" id="' + 'status-' + status.status_id + '">' +
+                        + '<a href="#page1" data-transition="slide">'
+                        + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message;
+                        + '</a></li>';
+
+                replies.forEach(function (reply) {
+                    html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '">'
+                        + '<a href="#page1" data-transition="slide">'
+                        + reply.author + ' says: '
+                        + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
+                        + '</a></li>';
+                });
+
+                return html;
             };
 
         });
