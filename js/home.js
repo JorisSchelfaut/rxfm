@@ -1,4 +1,5 @@
 var DEBUG           = true;
+var WALL            = {};
 var ACTIVE_USER     = 'soundsuggest';
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
@@ -10,7 +11,9 @@ var LAST_FM         = new LastFM({
     apiUrl      : 'https://ws.audioscrobbler.com/2.0/'
 });
 
-/*
+/**
+ * The result of the Last.fm API call looks as follows :
+ * <pre>
  * <shouts user="rj" total="495">
  *   <shout>
  *       <body>Blah</body>
@@ -19,31 +22,55 @@ var LAST_FM         = new LastFM({
  *   </shout>
  *  ...
  * </shouts>
+ * </pre>
+ * 
+ * The structure of the shouts is as follows :
+ * <pre>
+ * {
+ *      artist      : "artist name",
+ *      status_id   : "status_id",
+ *      message     : "some message",
+ *      reply_id    : "reply_id"
+ * }
+ * </pre>
+ * 
+ * For replies, the status_id attribute will be used to connect to a specific
+ * status by a user.
+ * 
+ * The WALL datastructure has the following structure:
+ * <pre>
+ * {
+ *      status  : { status object... },
+ *      replies : [ a list of reply objects... ]
+ * }
+ * </pre>
  */
 LAST_FM.user.getShouts({
     user : ACTIVE_USER
 }, {
     success : function(data) {
-        var html = '';
-        if (data.shouts.shout) {
-            if (data.shouts.shout[0]) {
-                for (var i = 0; i < data.shouts.shout.length; i++) {
-                    var shout = data.shouts.shout[i];
-                    if (filter(shout)) {
-                        if (DEBUG) console.log(shout.author.toString());
-                        if (shout.author.toString() === ACTIVE_USER.toString()) {
-                            html += statuslayout(shout.author.toString(), shout_json(shout));
-                        } else {
-                            html += commentlayout(shout.author.toString(), shout_json(shout));
-                        }
+        if (data.shouts.shout[0]) {
+            for (var i = 0; i < data.shouts.shout.length; i++) {
+                if (filter(data.shouts.shout[i])) {
+                    
+                    var shout = shout_json(data.shouts.shout[i]);
+                    shout.author = data.shouts.shout[i].author;
+                    
+                    if (! WALL[shout.status_id]) WALL[shout.status_id] = {};
+                    if (! WALL[shout.status_id].replies) WALL[shout.status_id].replies = new Array();
+                    if (shout.author.toString() === ACTIVE_USER.toString()) {
+                        WALL[shout.status_id].status = shout;
+                    } else {
+                        WALL[shout.status_id].replies.push(shout);
                     }
                 }
-            } else {
-                
-                // ADD FILTERS
-                
-                html += '<li data-theme="c"><a href="#page1" data-transition="slide">' + data.shouts.shout.body + '</a></li>';
             }
+            
+            var html = '';
+            for (var key in WALL) {
+                html += statuslayout(WALL[key]);
+            }
+            
             $('#shouts-list').append(html).listview('refresh');
         } else {
             if (DEBUG) console.log('You have no shouts. Sorry.');
@@ -78,23 +105,25 @@ shout_json = function (shout) {
 /**
  * Generates a status from the JavaScript object.
  * @param {type} obj
- * @param {String} author the author of the shout
  * @returns {String}
  */
-statuslayout = function (author, obj) {
-    return '<li data-theme="c" id="' +  + '"><a href="#page1" data-transition="slide">'
-            + 'I\'m looking for music similar to <em>' + obj.artist + '</em>! ' + obj.message;
+statuslayout = function (obj) {
+    var html = '';
+    var status = obj.status;
+    var replies = obj.replies;
+    
+    html += '<li data-theme="c" id="' + 'status-' + status.status_id + '">' +
+            + '<a href="#page1" data-transition="slide">'
+            + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message;
             + '</a></li>';
-};
-
-/**
- * Generates a comment from the JavaScript object.
- * @param {type} obj
- * @param {String} author the author of the shout
- * @returns {String}
- */
-commentlayout = function (author, obj) {
-    return '<li data-theme="c"><a href="#page1" data-transition="slide">'
-            + 'Check out <em>' + obj.artist + '</em>! ' + obj.message;
+    
+    replies.forEach(function (reply) {
+        html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '">'
+            + '<a href="#page1" data-transition="slide">'
+            + reply.author + ' says: '
+            + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
             + '</a></li>';
+    });
+    
+    return html;
 };
