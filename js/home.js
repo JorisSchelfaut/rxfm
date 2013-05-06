@@ -28,13 +28,20 @@ LAST_FM.user.getShouts({
         if (data.shouts.shout) {
             if (data.shouts.shout[0]) {
                 for (var i = 0; i < data.shouts.shout.length; i++) {
-                    if (filter(data.shouts.shout[i], ACTIVE_USER.toString())) {
-                        html += '<li data-theme="c"><a href="#page1" data-transition="slide">'
-                                + body_status(data.shouts.shout[i].body)
-                                + '</a></li>';
+                    var shout = data.shouts.shout[i];
+                    if (filter(shout)) {
+                        if (DEBUG) console.log(shout.author.toString());
+                        if (shout.author.toString() === ACTIVE_USER.toString()) {
+                            html += statuslayout(shout.author.toString(), shout_json(shout));
+                        } else {
+                            html += commentlayout(shout.author.toString(), shout_json(shout));
+                        }
                     }
                 }
             } else {
+                
+                // ADD FILTERS
+                
                 html += '<li data-theme="c"><a href="#page1" data-transition="slide">' + data.shouts.shout.body + '</a></li>';
             }
             $('#shouts-list').append(html).listview('refresh');
@@ -51,22 +58,43 @@ LAST_FM.user.getShouts({
  * Filters on author: must be the same as the provided author.
  * Filters on body, must contain @RXFM
  * @param {Object} shout
- * @param {String} author
  * @returns {Boolean}
  */
-filter = function (shout, author) {
-    if (shout.author.toString() === author)
-        if (shout.body.indexOf(CHANNEL) !== -1) return true;
+filter = function (shout) {
+    if (shout.body.indexOf(CHANNEL) !== -1)
+        return true;
     return false;
 };
 
 /**
- * Generates a status from the encoded string.
- * @param {type} body
- * @returns {String}
+ * Generates a status from the JSON encoded string.
+ * @param {type} shout
+ * @returns {eval}
  */
-body_status = function (body) {
-    var json = eval("(" + body.replace(/@RXFM/, '') + ')');
-    return 'I\'m looking for music similar to <em>' + json.artist + '</em>! ' + json.message;
+shout_json = function (shout) {
+    return eval("(" + shout.body.replace(/@RXFM/, '') + ')');
 };
 
+/**
+ * Generates a status from the JavaScript object.
+ * @param {type} obj
+ * @param {String} author the author of the shout
+ * @returns {String}
+ */
+statuslayout = function (author, obj) {
+    return '<li data-theme="c" id="' +  + '"><a href="#page1" data-transition="slide">'
+            + 'I\'m looking for music similar to <em>' + obj.artist + '</em>! ' + obj.message;
+            + '</a></li>';
+};
+
+/**
+ * Generates a comment from the JavaScript object.
+ * @param {type} obj
+ * @param {String} author the author of the shout
+ * @returns {String}
+ */
+commentlayout = function (author, obj) {
+    return '<li data-theme="c"><a href="#page1" data-transition="slide">'
+            + 'Check out <em>' + obj.artist + '</em>! ' + obj.message;
+            + '</a></li>';
+};
