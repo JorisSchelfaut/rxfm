@@ -15,7 +15,7 @@
         <script type="text/javascript" src="js/lastfm/lastfm.api.js"></script>
         <script type="text/javascript" src="js/lastfm/lastfm.json.supports.js"></script>
         <script type="text/javascript" src="js/purl/purl.js"></script>
-        <script type="text/javascript" src="js/home.js"></script>
+        <script type="text/javascript" src="js/comment.js"></script>
     </head>
     <body>
         
@@ -51,22 +51,8 @@
                         </li>
                     </ul>
                 </div>
-                <div id="wall">
-                    <div id="new-status">
-                        <div data-role="fieldcontain">
-                            <label for="textinput1">
-                                I would like to listen to music similar to...
-                            </label>
-                            <input name="artist" id="new-status-artist" placeholder="" value="" type="text">
-                            <!--ul id="new-status-artist" data-role="listview" data-inset="true" data-filter="true"
-                                data-filter-placeholder="Artist name..." data-filter-theme="d"></ul-->
-                        </div>
-                        <!--input type="submit" value="Submit"-->
-                        <button onclick="new_status()">Post!</button>
-                    </div>
-                    <ul data-role="listview" id="shouts-list"  data-divider-theme="b" data-inset="true">
-                        <li data-role="list-divider" role="heading">Your status</li>
-                    </ul>
+                <div id="comment">
+                    
                 </div>
             </div>
             <div data-role="footer">
