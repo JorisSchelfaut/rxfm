@@ -197,3 +197,11 @@ String.prototype.hashCode = function(){
    }
    return hash;
 };
+
+/**
+ * <p>Refreshes the feed.</p>
+ * @returns {undefined}
+ */
+refresh = function () {
+    return;
+};

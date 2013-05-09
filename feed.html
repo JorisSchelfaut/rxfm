@@ -5,7 +5,7 @@
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        <title></title>
+        <title>RX.fm</title>
         <link rel="stylesheet" href="https://s3.amazonaws.com/codiqa-cdn/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
         <link rel="stylesheet" href="css/style.css" />
         <script type="text/javascript" src="https://s3.amazonaws.com/codiqa-cdn/jquery-1.7.2.min.js"></script>
@@ -21,9 +21,10 @@
         <!-- Home -->
         <div data-role="page" id="page1">
             <div data-theme="a" data-role="header">
-                <h3>
+                <h1>
                     RX.fm
-                </h3>
+                    <a href="settings.html" data-icon="gear" class="ui-btn-right">Settings</a>
+                </h1>
             </div>
             <div data-role="content">
                 <div data-role="navbar" data-iconpos="top">
@@ -43,14 +44,10 @@
                                 Friends
                             </a>
                         </li>
-                        <li>
-                            <a href="settings.html" data-transition="fade" data-theme="" data-icon="">
-                                Settings
-                            </a>
-                        </li>
                     </ul>
                 </div>
                 <div id="feed">
+                    <button onclick="refresh();">Refresh</button>
                     <ul data-role="listview" id="shouts-list"  data-divider-theme="b" data-inset="true">
                         <li data-role="list-divider" role="heading">Feed</li>
                     </ul>

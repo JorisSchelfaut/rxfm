@@ -1,3 +1,5 @@
+var DEBUG = true;
+
 jQuery(document).ready(function() {
     try {
         $(function() {
@@ -99,23 +101,22 @@ jQuery(document).ready(function() {
                 var html = '';
                 var status = obj.status;
                 var replies = obj.replies;
-
+                
                 html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update">'
                         + '<h4>[' + status.date + ']' + status.author + ':</h4>'
                         + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
+                        + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
                         + show_inputform(status.status_id, status.author)
                         + '</li>';
                 
                 replies.forEach(function (reply) {
-                    html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '" class="status-reply">'
-                        //+ '<a href="#page1" data-transition="slide">'
-                        + '<a href="comment.html?recommendation=' + reply.artist
-                        + '&author=' + reply.author
-                        + '&artist=' + status.artist
-                        + '" data-transition="slide">'
+                    html += '<li data-theme="c" '
+                        + 'id="' + 'reply-' + reply.reply_id + '" ' 
+                        + 'class="status-reply comment-' + reply.status_id + '" '
+                        + '>'
                         + '[' + reply.date + ']' + reply.author + ' says: '
                         + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
-                        + '</a></li>';
+                        + '</li>';
                 });
 
                 return html;
@@ -123,17 +124,16 @@ jQuery(document).ready(function() {
             
             show_inputform = function (status_id, recipient) {
                 var html = '';
-                html += '<div id="new-relply-' + status_id + '">'
-                html += '    <div data-role="fieldcontain">'
-                html += '        <label for="textinput1">Recommend an artist: </label>'
-                html += '        <input name="artist" placeholder="" value="" type="text">'
-                html += '    </div>'
-                html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Post!</button>'
+                html += '<div id="new-reply-' + status_id + '">';
+                html += '    <button for="textinput1">Recommend an artist: </label>';
+                html += '    <div data-role="fieldcontain">';
+                html += '        <input name="artist" placeholder="" value="" type="text" class="artist-input"/>';
+                html += '    </div>';
+                html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Reply!</button>';
                 html += '</div>';
                 return html;
             };
-
-
+            
             new_reply = function (status_id, recipient) {
                 var artist = $('input[name=artist]', '#new-reply-' + status_id).val();
                 var user = recipient;
@@ -144,13 +144,13 @@ jQuery(document).ready(function() {
                         + 'status_id:%22' + status_id + '%22,'
                         + 'reply_id:%22' + reply_id + '%22'
                         + '}';
-                console.log(message);/*
+                if (DEBUG) console.log(message);
                 LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
                     success : function (data) {
                         console.log("success.");
                     },
                     error : function (data) { console.error(data); }
-                });*/
+                });
             };
 
             String.prototype.hashCode = function(){
@@ -169,3 +169,15 @@ jQuery(document).ready(function() {
     }
 });
 
+/**
+ * <p>Refreshes the feed.</p>
+ * @returns {undefined}
+ */
+refresh = function () {
+    return;
+};
+
+toggle_hide = function(status_id) {
+    if (DEBUG) console.log("feed.js#toggle_hide");
+    jQuery('.comment-' + status_id).toggle();
+};
