@@ -47,9 +47,17 @@
                     </ul>
                 </div>
                 <div id="feed">
-                    <button onclick="refresh();">Refresh</button>
                     <ul data-role="listview" id="shouts-list"  data-divider-theme="b" data-inset="true">
-                        <li data-role="list-divider" role="heading">Feed</li>
+                        <li data-role="list-divider" role="heading">
+                            Feed
+                            <button onclick="refresh();" data-icon="refresh"
+                                    data-role="button"
+                                    data-iconpos="notext"
+                                    class="ui-btn-right"
+                                    title="Refresh">
+                                Refresh
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>

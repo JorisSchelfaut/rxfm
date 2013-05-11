@@ -11,44 +11,58 @@ var LAST_FM         = new LastFM({
     apiUrl      : 'http://ws.audioscrobbler.com/2.0/'
 });
 
+/*
+$("#new-status-artist").on("listviewbeforefilter", function (e, data) {
+    var $ul = $(this),
+        $input = $(data.input),
+        value = $input.val(),
+        html = "";
+    $ul.html("");
+    if (value && value.length > 2) {
+            $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+            $ul.listview("refresh");
+
+            var ARTISTS = ['Animals as Leaders', 'Daft Punk',
+                'Depeche Mode', 'deus',
+                'Noir Desir', 'Noisedriver','Placebo', 
+                'Pendulum', 'Tool', 'Wren'];
+
+            $.each(ARTISTS, function (i, val) {
+                html += "<li>" + '<a href="">' + val + '</a>' + "</li>";
+            });
+            $ul.html(html);
+            $ul.listview("refresh");
+            $ul.trigger("updatelayout");
+    }
+});
+*/
+
 jQuery(document).ready(function() {
     try {
-        
-        load_wall();
-        
-        /*
-        $("#new-status-artist").on("listviewbeforefilter", function (e, data) {
-            var $ul = $(this),
-                $input = $(data.input),
-                value = $input.val(),
-                html = "";
-            $ul.html("");
-            if (value && value.length > 2) {
-                    $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
-                    $ul.listview("refresh");
-                    
-                    var ARTISTS = ['Animals as Leaders', 'Daft Punk',
-                        'Depeche Mode', 'deus',
-                        'Noir Desir', 'Noisedriver','Placebo', 
-                        'Pendulum', 'Tool', 'Wren'];
-                    
-                    $.each(ARTISTS, function (i, val) {
-                        html += "<li>" + '<a href="">' + val + '</a>' + "</li>";
-                    });
-                    $ul.html(html);
-                    $ul.listview("refresh");
-                    $ul.trigger("updatelayout");
+        $(function() {
+            var authURL = 'http://www.last.fm/api/auth/?api_key='
+                + API_KEY + '&cb=' + window.location;
+            var token = '';
+            if (!$.url().param('token')) {
+                window.location = authURL;
+            } else {
+                token = $.url().param('token');
+                
+                LAST_FM.auth.getSession({
+                    token: token
+                }, {
+                    success: function(data) {
+                        SESSION_KEY = data.session.key;
+                        load_wall();
+                    },
+                    error : function (data) {}
+                });
             }
         });
-        */
-        
-        
     } catch (exception) {
         console.error("An exception occurred : " + exception);
     }
 });
-
-
 
 
 /**
@@ -114,6 +128,16 @@ load_wall = function () {
         }
     });
 };
+
+/**
+ * Clears all shouts from the wall.
+ * @returns {undefined}
+ */
+clear_wall = function () {
+    jQuery('.shout').remove();
+    return;
+};
+
 /**
 * Filters on body, must contain @RXFM
 * @param {Object} shout
@@ -140,21 +164,24 @@ shout_json = function (shout) {
 };
 
 /**
-* Generates a status from the JavaScript object.
-* @param {type} obj
-* @returns {String}
-*/
+ * Generates a status from the JavaScript object.
+ * @param {type} obj
+ * @returns {String}
+ */
 statuslayout = function (obj) {
     var html = '';
     var status = obj.status;
     var replies = obj.replies;
     
-    html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update">'
+    html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update shout">'
             + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
+            + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
             + '</li>';
     
     replies.forEach(function (reply) {
-        html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '" class="status-reply">'
+        html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '" '
+            + 'class="shout status-reply comment-' + reply.status_id + '"'
+            + '>'
             + '<a href="comment.html?recommendation=' + reply.artist
             + '&author=' + reply.author
             + '&artist=' + status.artist
@@ -164,12 +191,12 @@ statuslayout = function (obj) {
             + '</a>'
             + '</li>';
     });
-    if (DEBUG) console.log(html);
     return html;
 };
 
 new_status = function () {
     var artist = $('input[name=artist]', '#new-status').val();
+    $('input[name=artist]', '#new-status').val('');
     var user = ACTIVE_USER;
     var status_id = (artist + user + new Date().toDateString()).toString().hashCode();
     var message = CHANNEL + '{'
@@ -182,6 +209,7 @@ new_status = function () {
     LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
         success : function (data) {
             console.log("success.");
+            refresh();
         },
         error : function (data) { console.error(data); }
     });
@@ -203,5 +231,12 @@ String.prototype.hashCode = function(){
  * @returns {undefined}
  */
 refresh = function () {
+    clear_wall();
+    load_wall();
     return;
+};
+
+toggle_hide = function(status_id) {
+    if (DEBUG) console.log("feed.js#toggle_hide");
+    jQuery('.comment-' + status_id).toggle();
 };

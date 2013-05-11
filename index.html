@@ -63,7 +63,13 @@
                     <ul data-role="listview" id="shouts-list"  data-divider-theme="b" data-inset="true">
                         <li data-role="list-divider" role="heading">
                             Your status
-                            <button onclick="refresh();" data-icon="refresh" class="ui-btn-right"></button>
+                            <button onclick="refresh();" data-icon="refresh"
+                                    data-role="button"
+                                    data-iconpos="notext"
+                                    class="ui-btn-right"
+                                    title="Refresh">
+                                Refresh
+                            </button>
                         </li>
                     </ul>
                 </div>
