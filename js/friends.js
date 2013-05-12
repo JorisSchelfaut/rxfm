@@ -17,7 +17,12 @@ LAST_FM.user.getFriends({
         if (data.friends.user) {
             if (data.friends.user[0]) {
                 for (var i = 0; i < data.friends.user.length; i++) {
-                    html += '<li data-theme="c"><a href="#page1" data-transition="slide">' + data.friends.user[i].name + '</a></li>';
+                    html += '<li data-theme="c"><a href="friend.html?user='
+                            + data.friends.user[i].name
+                            + '" data-transition="slide" '
+                            + 'data-ajax="false" '
+                            + '>'
+                            + data.friends.user[i].name + '</a></li>';
                 }
             } else {
                 html += '<li data-theme="c"><a href="#page1" data-transition="slide">' + data.friends.user.name + '</a></li>';

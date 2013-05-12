@@ -40,6 +40,7 @@ $("#new-status-artist").on("listviewbeforefilter", function (e, data) {
 jQuery(document).ready(function() {
     try {
         $(function() {
+            /*
             var authURL = 'http://www.last.fm/api/auth/?api_key='
                 + API_KEY + '&cb=' + window.location;
             var token = '';
@@ -57,7 +58,8 @@ jQuery(document).ready(function() {
                     },
                     error : function (data) {}
                 });
-            }
+            }*/
+            load_wall();
         });
     } catch (exception) {
         console.error("An exception occurred : " + exception);
@@ -185,7 +187,9 @@ statuslayout = function (obj) {
             + '<a href="comment.html?recommendation=' + reply.artist
             + '&author=' + reply.author
             + '&artist=' + status.artist
-            +  '" data-transition="slide">'
+            + '" data-transition="slide" '
+            + 'data-ajax="false" '
+            + '>'
             + reply.author + ' says: '
             + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message
             + '</a>'
@@ -196,23 +200,25 @@ statuslayout = function (obj) {
 
 new_status = function () {
     var artist = $('input[name=artist]', '#new-status').val();
-    $('input[name=artist]', '#new-status').val('');
-    var user = ACTIVE_USER;
-    var status_id = (artist + user + new Date().toDateString()).toString().hashCode();
-    var message = CHANNEL + '{'
-            + 'artist:[%22' + artist + '%22],'
-            + 'message:%22%22,'
-            + 'status_id:%22' + status_id + '%22,'
-            + 'reply_id:undefined'
-            + '}';
-    console.log(message);
-    LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
-        success : function (data) {
-            console.log("success.");
-            refresh();
-        },
-        error : function (data) { console.error(data); }
-    });
+    if (artist.toString() !== '') {
+        $('input[name=artist]', '#new-status').val('');
+        var user = ACTIVE_USER;
+        var status_id = (artist + user + new Date().toDateString()).toString().hashCode();
+        var message = CHANNEL + '{'
+                + 'artist:[%22' + artist + '%22],'
+                + 'message:%22%22,'
+                + 'status_id:%22' + status_id + '%22,'
+                + 'reply_id:undefined'
+                + '}';
+        console.log(message);
+        LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
+            success : function (data) {
+                console.log("success.");
+                refresh();
+            },
+            error : function (data) { console.error(data); }
+        });
+    }
 };
 
 String.prototype.hashCode = function(){

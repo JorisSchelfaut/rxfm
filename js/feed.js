@@ -14,6 +14,7 @@ var LAST_FM         = new LastFM({
 jQuery(document).ready(function() {
     try {
         $(function() {
+            /*
             var authURL = 'http://www.last.fm/api/auth/?api_key='
                 + API_KEY + '&cb=' + window.location;
             var token = '';
@@ -32,6 +33,8 @@ jQuery(document).ready(function() {
                     error : function (data) {}
                 });
             }
+            */
+            load_wall();
         });
     } catch (exception) {
         console.error("An exception occurred : " + exception);
@@ -184,25 +187,33 @@ clear_wall = function () {
     return;
 };
 
+/**
+ * 
+ * @param {type} status_id
+ * @param {type} recipient
+ * @returns {undefined}
+ */
 new_reply = function (status_id, recipient) {
     var artist = $('input[name=artist]', '#new-reply-' + status_id).val();
-    $('input[name=artist]', '#new-status').val('');
-    var user = recipient;
-    var reply_id = (artist + user + new Date().toDateString()).toString().hashCode();
-    var message = CHANNEL + '{'
-            + 'artist:[%22' + artist + '%22],'
-            + 'message:%22%22,'
-            + 'status_id:%22' + status_id + '%22,'
-            + 'reply_id:%22' + reply_id + '%22'
-            + '}';
-    if (DEBUG) console.log(message);
-    LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
-        success : function (data) {
-            console.log("success.");
-            refresh();
-        },
-        error : function (data) { console.error(data); }
-    });
+    if (artist.toString() !== '') {
+        $('input[name=artist]', '#new-status').val('');
+        var user = recipient;
+        var reply_id = (artist + user + new Date().toDateString()).toString().hashCode();
+        var message = CHANNEL + '{'
+                + 'artist:[%22' + artist + '%22],'
+                + 'message:%22%22,'
+                + 'status_id:%22' + status_id + '%22,'
+                + 'reply_id:%22' + reply_id + '%22'
+                + '}';
+        if (DEBUG) console.log(message);
+        LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
+            success : function (data) {
+                console.log("success.");
+                refresh();
+            },
+            error : function (data) { console.error(data); }
+        });
+    }
 };
 
 String.prototype.hashCode = function(){
