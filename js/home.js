@@ -1,6 +1,7 @@
 var DEBUG           = true;
-var ACTIVE_USER     = 'soundsuggest';
-var SESSION_KEY     = '245679ce27a18ca85e038d52c2f767a4';
+var KEY = 'user';
+var ACTIVE_USER = localStorage.getItem(KEY);
+var SESSION_KEY = localStorage.getItem('session-' + ACTIVE_USER);
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
 var API_SECRET      = 'ab5950262d6fb5069bc14d718d13e5f7';
@@ -40,25 +41,6 @@ $("#new-status-artist").on("listviewbeforefilter", function (e, data) {
 jQuery(document).ready(function() {
     try {
         $(function() {
-            /*
-            var authURL = 'http://www.last.fm/api/auth/?api_key='
-                + API_KEY + '&cb=' + window.location;
-            var token = '';
-            if (!$.url().param('token')) {
-                window.location = authURL;
-            } else {
-                token = $.url().param('token');
-                
-                LAST_FM.auth.getSession({
-                    token: token
-                }, {
-                    success: function(data) {
-                        SESSION_KEY = data.session.key;
-                        load_wall();
-                    },
-                    error : function (data) {}
-                });
-            }*/
             load_wall();
         });
     } catch (exception) {

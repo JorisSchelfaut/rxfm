@@ -1,9 +1,10 @@
 var DEBUG           = true;
-var ACTIVE_USER     = 'soundsuggest';
+var KEY = 'user';
+var ACTIVE_USER = localStorage.getItem(KEY);
+var SESSION_KEY = localStorage.getItem('session-' + ACTIVE_USER);
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
 var API_SECRET      = 'ab5950262d6fb5069bc14d718d13e5f7';
-var SESSION_KEY     = '245679ce27a18ca85e038d52c2f767a4';
 var LAST_FM         = new LastFM({
     apiKey      : API_KEY,
     apiSecret   : API_SECRET,
