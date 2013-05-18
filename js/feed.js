@@ -21,16 +21,14 @@ jQuery(document).ready(function() {
     }
 });
 
-/**
- * <p>Refreshes the feed.</p>
- * @returns {undefined}
- */
-refresh = function () {
-    return;
-};
-
 toggle_hide = function(status_id) {
     if (DEBUG) console.log("feed.js#toggle_hide");
+    if (jQuery('#status-' + status_id).hasClass('show-replies')) {
+        jQuery('#status-' + status_id).attr('data-icon', 'arrow-d');
+    } else {
+        jQuery('#status-' + status_id).addClass('show-replies');
+        jQuery('#status-' + status_id).attr('data-icon', 'arrow-u');
+    }
     jQuery('.comment-' + status_id).toggle();
 };
 
@@ -74,9 +72,29 @@ load_wall = function () {
                         }
                     }
                 }
-                var html = '';
+                orderKeysByTimestamp = function (keys, WALL) {
+                    for (var i = 0; i < keys.length; i++) {
+                        for (var j = 0; j < keys.length; j++) {
+                            var d1 = new Date(WALL[keys[i]].status.date);
+                            var d2 = new Date(WALL[keys[j]].status.date);
+                            if (d1 > d2) {
+                                var tmp = keys[j];
+                                keys[j] = keys[i];
+                                keys[i] = tmp;
+                            }
+                        }
+                    }
+                    return keys;
+                };
+
+                var keys = [];
                 for (var key in WALL) {
-                    html += statuslayout(WALL[key]);
+                    keys.push(key);
+                }
+                keys = orderKeysByTimestamp(keys, WALL);
+                var html = '';
+                for (var i = 0; i < keys.length; i++) {
+                    html += statuslayout(WALL[keys[i]]);
                 }
                 $('#shouts-list').append(html).listview('refresh');
                 index++;
@@ -124,13 +142,23 @@ load_wall = function () {
         var status = obj.status;
         var replies = obj.replies;
 
-        html += '<li data-theme="c" id="' + 'status-' + status.status_id
-                + '" class="status-update shout">'
-                + '<h4>[' + status.date + '] ' + status.author + ':</h4>'
-                + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
-                + show_inputform(status.status_id, status.author)
-                + show_replies (status.status_id, replies)
-                + '</li>';
+        html += '<li id="' + 'status-' + status.status_id + '" '
+                + ' data-role="collapsible" data-theme="b" data-content-theme="c" '
+                + ' onclick="show_form(' + status.status_id + ');" '
+                + ' class="status-update shout">'
+                + '<a ' + ' href="#" '
+                + ' data-role="button" '
+                + ' data-icon="arrow-d" data-iconpos="right" ' 
+                + ' data-theme="c" rel="external" '
+                + ' onclick="toggle_hide(\'' + status.status_id
+                + '\'); return false;" '
+                + '>'
+                + '<h4>'
+                + status.author + ' looking for music similar to:</h4>'
+                + '"' + status.artist + '"'
+                + show_replies_bubble(replies)
+                + '</a></li>';
+        html += show_inputform2(status.status_id, status.author);
 
         replies.forEach(function (reply) {
             html += '<li data-theme="c" '
@@ -138,29 +166,39 @@ load_wall = function () {
                 + 'class="status-reply comment-' + reply.status_id + ' shout" '
                 + ' style="display:none;" '
                 + '>'
-                + '[' + reply.date + '] ' + reply.author + ' says: '
-                + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
+                + reply.author + ' suggests: '
+                + '"' + reply.artist + '" '
                 + '</li>';
         });
 
         return html;
     };
-
-    show_inputform = function (status_id, recipient) {
+    
+    show_inputform2 = function (status_id, recipient) {
         var html = '';
-        html += '<div id="new-reply-' + status_id + '">';
-        //html += '    <button for="textinput1">Recommend an artist: </label>';
-        html += '    <div data-role="fieldcontain">';
-        html += '        <input name="artist" placeholder="" value="" type="text" class="artist-input"/>';
-        html += '    </div>';
+        html += '<li id="new-reply-' + status_id + '" '
+                + ' style="display:none;" '
+                + '>';
+        html += '    <input name="artist" placeholder="" value="" type="text" class="artist-input"/>';
         html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Reply!</button>';
-        html += '</div>';
+        html += '</li>';
+        return html;
+    };
+//    <ul id="new-status-artist" data-role="listview" 
+//        data-inset="true" data-filter="true"
+//        data-filter-placeholder="Artist name..."
+//        data-filter-theme="d">
+    show_replies_bubble = function (replies) {
+        var html = '';
+        html += '<span class="ui-li-count">';
+        html += ((replies.length)?replies.length:'0');
+        html += '</span>';
         return html;
     };
     
     show_replies = function (status_id, replies) {
         var html = '';
-        html += '<div style="display="inline">Replies ('
+        html += '<div style="display:inline;">Replies ('
                 + ((replies.length)?replies.length:'0')
                 + ') ';
         html += '<button onclick="toggle_hide(\'' + status_id
@@ -226,4 +264,13 @@ refresh = function () {
     clear_wall();
     load_wall();
     return;
+};
+
+/**
+ * Shows the reply form for a given status.
+ * @param {type} status_id
+ * @returns {undefined}
+ */
+show_form = function (status_id) {
+    jQuery('#new-reply-' + status_id).toggle();
 };

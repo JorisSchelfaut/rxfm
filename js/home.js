@@ -156,7 +156,10 @@ load_wall = function () {
             for (var i = 0; i < keys.length; i++) {
                 html += statuslayout(WALL[keys[i]]);
             }
-            $('#shouts-list').append(html).listview('refresh');
+            $('#shouts-div').append(html).collapsibleset('refresh');
+            $("#shouts-div ul").each(function(i) {
+                $(this).listview(); 
+            }); 
         },
         error : function (data) {
             console.log(data.error + ' : ' + data.message);
@@ -214,41 +217,46 @@ statuslayout = function (obj) {
         if (! COMMENTS[reply_key]) new_replies++;
     });
     
-    show_replies = function (status_id, replies) {
-        var html = '';
-        html += '<div style="display="inline">Replies ('
-                + ((replies.length)?replies.length:'0')
-                + ') ';
-        if (new_replies > 0) html += ' New (' + new_replies + ')';
-        html += '<button onclick="toggle_hide(\'' + status_id
-                + '\');">Show / Hide</button></div>';
-        return html;
-    };
-    
-    html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update shout">'
-            + '[' + status.date + '] '
-            + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
-            + show_replies(status.status_id, replies)
-            + '</li>';
-    
+    html += '<div id="' + 'status-' + status.status_id + '" class="status-update shout" '
+            + ' data-role="collapsible" '
+            + ' data-collapsed="true" '
+            + ' data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" '
+            + ' data-iconpos="left" '
+            + ' data-inset="true" '
+            + '>'
+            + ' <h2>'
+            + 'Looking for music similar to "' + status.artist + '".';
+    html += ((new_replies > 0)?('<span class="ui-li-count">' + new_replies + '</span>'):'');
+    html += ' </h2>';
+    html += '   <ul class="shouts-list" data-role="listview" data-theme="d" data-divider-theme="d">';
+    html += '<li data-role="list-divider">' + status.date;
+    html += '<span class="ui-li-count">' + replies.length + '</span>';
+    html += '</li>'; 
     replies.forEach(function (reply) {
-        html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '" '
-            + ' class="shout status-reply comment-' + reply.status_id + '"'
-            + ' style="display:none;" '
-            + '>'
-            + '<a href="comment.html?recommendation=' + reply.artist
-            + '&author=' + reply.author
-            + '&artist=' + status.artist
-            + '&reply=' + reply.reply_id
-            + '" data-transition="slide" '
-            + 'data-ajax="false" '
-            + '>'
-            + '[' + reply.date + '] '
-            + reply.author + ' says: '
-            + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message
-            + '</a>'
-            + '</li>';
+        html += '<li id="' + 'reply-' + reply.reply_id + '" '
+            + ' class="shout status-reply comment-' + reply.status_id + '" '
+            + '>' // end li
+            + '<a '
+            + ' href="comment.html?recommendation=' + reply.artist
+            + '&author='   + reply.author
+            + '&artist='   + status.artist
+            + '&reply='    + reply.reply_id
+            + '" ' // end href
+            + ' data-transition="slide" '
+            + ' data-ajax="false" '
+            + '>' // end a
+            + '<h3>' + reply.author + '</h3>'
+            + '<p>'
+            + 'Suggests the following artist: '
+            + '"' + reply.artist + '" '
+            + '</p>'
+            + '<p class="ui-li-aside">' + reply.date
+            + '</p>'
+            + '</a>' // close a
+            + '</li>'; // close li
     });
+    html += '   </ul>'; // close ul
+    html += '</div>';   // close div
     return html;
 };
 
@@ -300,14 +308,4 @@ refresh = function () {
     clear_wall();
     load_wall();
     return;
-};
-
-/**
- * Hides / shows replies for a given status.
- * @param {type} status_id
- * @returns {undefined}
- */
-toggle_hide = function(status_id) {
-    if (DEBUG) console.log("home.js#toggle_hide");
-    jQuery('.comment-' + status_id).toggle();
 };
