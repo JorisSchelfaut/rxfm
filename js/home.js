@@ -135,7 +135,9 @@ load_wall = function () {
             orderKeysByTimestamp = function (keys, WALL) {
                 for (var i = 0; i < keys.length; i++) {
                     for (var j = 0; j < keys.length; j++) {
-                        if (WALL[keys[i]].status.date < WALL[keys[j]].status.date) {
+                        var d1 = new Date(WALL[keys[i]].status.date);
+                        var d2 = new Date(WALL[keys[j]].status.date);
+                        if (d1 > d2) {
                             var tmp = keys[j];
                             keys[j] = keys[i];
                             keys[i] = tmp;
