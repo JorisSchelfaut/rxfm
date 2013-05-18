@@ -96,7 +96,10 @@ load_wall = function () {
                 for (var i = 0; i < keys.length; i++) {
                     html += statuslayout(WALL[keys[i]]);
                 }
-                $('#shouts-list').append(html).listview('refresh');
+                $('#shouts-div').append(html).collapsibleset('refresh');
+                $("#shouts-div ul").each(function(i) {
+                    $(this).listview(); 
+                });
                 index++;
                 getShouts(friends, index);
             },
@@ -141,70 +144,54 @@ load_wall = function () {
         var html = '';
         var status = obj.status;
         var replies = obj.replies;
-
-        html += '<li id="' + 'status-' + status.status_id + '" '
-                + ' data-role="collapsible" data-theme="b" data-content-theme="c" '
-                + ' onclick="show_form(' + status.status_id + ');" '
-                + ' class="status-update shout">'
-                + '<a ' + ' href="#" '
-                + ' data-role="button" '
-                + ' data-icon="arrow-d" data-iconpos="right" ' 
-                + ' data-theme="c" rel="external" '
-                + ' onclick="toggle_hide(\'' + status.status_id
-                + '\'); return false;" '
-                + '>'
-                + '<h4>'
-                + status.author + ' looking for music similar to:</h4>'
-                + '"' + status.artist + '"'
-                + show_replies_bubble(replies)
-                + '</a></li>';
-        html += show_inputform2(status.status_id, status.author);
-
+        
+        html += '<div id="' + 'status-' + status.status_id + '" class="status-update shout" '
+            + ' data-role="collapsible" '
+            + ' data-collapsed="true" '
+            + ' data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" '
+            + ' data-iconpos="left" '
+            + ' data-inset="true" '
+            + '>';
+        html += '<h2 title="Similar to \'' + status.artist + '\'">'
+            + status.author + ' '
+            +       ' : "' + status.artist + '"?'
+            +   '</h2>';
+        html += '<ul class="shouts-list" data-role="listview" data-theme="d" data-divider-theme="d">';
+        // List divider with form
+        html += '<li data-role="list-divider">'
+            +       '<span>' + status.date + '</span>'
+            +       show_inputform(status.status_id, status.author)
+            +       '<span class="ui-li-count">' + replies.length + '</span>'
+            +   '</li>'; 
         replies.forEach(function (reply) {
-            html += '<li data-theme="c" '
-                + 'id="' + 'reply-' + reply.reply_id + '" ' 
-                + 'class="status-reply comment-' + reply.status_id + ' shout" '
-                + ' style="display:none;" '
-                + '>'
-                + reply.author + ' suggests: '
+            html += '<li id="' + 'reply-' + reply.reply_id + '" '
+                + ' class="shout status-reply comment-' + reply.status_id + '">';
+            html += '<h3>' + reply.author + '</h3>';
+            html += '<p>'
+                + 'Suggests the following artist: '
                 + '"' + reply.artist + '" '
-                + '</li>';
+                + '</p>';
+            html += '<p class="ui-li-aside">' + reply.date + '</p>';
+            html += '</a>'; // close a
+            html += '</li>'; // close li
         });
-
+        html += '   </ul>'; // close ul
+        html += '</div>';   // close div
         return html;
     };
     
-    show_inputform2 = function (status_id, recipient) {
+    show_inputform = function (status_id, recipient) {
         var html = '';
-        html += '<li id="new-reply-' + status_id + '" '
-                + ' style="display:none;" '
-                + '>';
+        html += '<div id="new-reply-' + status_id + '">';
         html += '    <input name="artist" placeholder="" value="" type="text" class="artist-input"/>';
         html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Reply!</button>';
-        html += '</li>';
+        html += '</div>';
         return html;
     };
 //    <ul id="new-status-artist" data-role="listview" 
 //        data-inset="true" data-filter="true"
 //        data-filter-placeholder="Artist name..."
 //        data-filter-theme="d">
-    show_replies_bubble = function (replies) {
-        var html = '';
-        html += '<span class="ui-li-count">';
-        html += ((replies.length)?replies.length:'0');
-        html += '</span>';
-        return html;
-    };
-    
-    show_replies = function (status_id, replies) {
-        var html = '';
-        html += '<div style="display:inline;">Replies ('
-                + ((replies.length)?replies.length:'0')
-                + ') ';
-        html += '<button onclick="toggle_hide(\'' + status_id
-                + '\');">Show / Hide</button></div>';
-        return html;
-    };
 };
 
 /**

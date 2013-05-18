@@ -159,7 +159,7 @@ load_wall = function () {
             $('#shouts-div').append(html).collapsibleset('refresh');
             $("#shouts-div ul").each(function(i) {
                 $(this).listview(); 
-            }); 
+            });
         },
         error : function (data) {
             console.log(data.error + ' : ' + data.message);
@@ -224,7 +224,7 @@ statuslayout = function (obj) {
             + ' data-iconpos="left" '
             + ' data-inset="true" '
             + '>'
-            + ' <h2>'
+            + '<h2>'
             + 'Looking for music similar to "' + status.artist + '".';
     html += ((new_replies > 0)?('<span class="ui-li-count">' + new_replies + '</span>'):'');
     html += ' </h2>';
