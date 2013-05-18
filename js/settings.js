@@ -10,6 +10,9 @@ reset = function () {
     // Remove user;
     localStorage.removeItem(KEY);
     
+    // Clear all comments
+    localStorage.clear();
+    
     var root = window.location.toString().split('settings.html')[0];
     window.location.href = root;
 };

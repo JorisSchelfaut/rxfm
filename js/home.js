@@ -131,9 +131,28 @@ load_wall = function () {
                     }
                 }
             }
-            var html = '';
+            
+            orderKeysByTimestamp = function (keys, WALL) {
+                for (var i = 0; i < keys.length; i++) {
+                    for (var j = 0; j < keys.length; j++) {
+                        if (WALL[keys[i]].status.date < WALL[keys[j]].status.date) {
+                            var tmp = keys[j];
+                            keys[j] = keys[i];
+                            keys[i] = tmp;
+                        }
+                    }
+                }
+                return keys;
+            };
+            
+            var keys = [];
             for (var key in WALL) {
-                html += statuslayout(WALL[key]);
+                keys.push(key);
+            }
+            keys = orderKeysByTimestamp(keys, WALL);
+            var html = '';
+            for (var i = 0; i < keys.length; i++) {
+                html += statuslayout(WALL[keys[i]]);
             }
             $('#shouts-list').append(html).listview('refresh');
         },
@@ -186,20 +205,39 @@ statuslayout = function (obj) {
     var html = '';
     var status = obj.status;
     var replies = obj.replies;
+    var new_replies = 0;
+    var COMMENTS = localStorage.getObject('home_replies') || {};
+    replies.forEach(function (reply) {
+        var reply_key = 'reply_' + reply.reply_id;
+        if (! COMMENTS[reply_key]) new_replies++;
+    });
+    
+    show_replies = function (status_id, replies) {
+        var html = '';
+        html += '<div style="display="inline">Replies ('
+                + ((replies.length)?replies.length:'0')
+                + ') ';
+        if (new_replies > 0) html += ' New (' + new_replies + ')';
+        html += '<button onclick="toggle_hide(\'' + status_id
+                + '\');">Show / Hide</button></div>';
+        return html;
+    };
     
     html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update shout">'
             + '[' + status.date + '] '
             + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
-            + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
+            + show_replies(status.status_id, replies)
             + '</li>';
     
     replies.forEach(function (reply) {
         html += '<li data-theme="c" id="' + 'reply-' + reply.reply_id + '" '
-            + 'class="shout status-reply comment-' + reply.status_id + '"'
+            + ' class="shout status-reply comment-' + reply.status_id + '"'
+            + ' style="display:none;" '
             + '>'
             + '<a href="comment.html?recommendation=' + reply.artist
             + '&author=' + reply.author
             + '&artist=' + status.artist
+            + '&reply=' + reply.reply_id
             + '" data-transition="slide" '
             + 'data-ajax="false" '
             + '>'
@@ -262,7 +300,12 @@ refresh = function () {
     return;
 };
 
+/**
+ * Hides / shows replies for a given status.
+ * @param {type} status_id
+ * @returns {undefined}
+ */
 toggle_hide = function(status_id) {
-    if (DEBUG) console.log("feed.js#toggle_hide");
+    if (DEBUG) console.log("home.js#toggle_hide");
     jQuery('.comment-' + status_id).toggle();
 };

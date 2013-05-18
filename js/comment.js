@@ -1,7 +1,7 @@
-var DEBUG           = true;
-var KEY = 'user';
-var ACTIVE_USER = localStorage.getItem(KEY);
+var DEBUG = true;
+var ACTIVE_USER = localStorage.getItem('user');
 var SESSION_KEY = localStorage.getItem('session-' + ACTIVE_USER);
+var COMMENTS    = localStorage.getObject('home_replies') || {};
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
 var API_SECRET      = 'ab5950262d6fb5069bc14d718d13e5f7';
@@ -14,6 +14,11 @@ var LAST_FM         = new LastFM({
 var artist = $.url().param('artist').replace(/%20/g, ' ');
 var recommendation = $.url().param('recommendation').replace(/%20/g, ' ');
 var author = $.url().param('author').replace(/%20/g, ' ');
+var reply_id = $.url().param('reply');
+var reply_key = 'reply_' + reply_id;
+COMMENTS[reply_key] = true;
+// Store the key - this comment has been seen.
+localStorage.setObject('home_replies', COMMENTS);
 
 LAST_FM.artist.getInfo({
     artist      : recommendation,

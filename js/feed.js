@@ -1,6 +1,5 @@
-var DEBUG           = true;
-var KEY = 'user';
-var ACTIVE_USER = localStorage.getItem(KEY);
+var DEBUG = true;
+var ACTIVE_USER = localStorage.getItem('user');
 var SESSION_KEY = localStorage.getItem('session-' + ACTIVE_USER);
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
@@ -149,14 +148,15 @@ load_wall = function () {
                 + '" class="status-update shout">'
                 + '<h4>[' + status.date + '] ' + status.author + ':</h4>'
                 + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
-                + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
                 + show_inputform(status.status_id, status.author)
+                + show_replies (status.status_id, replies)
                 + '</li>';
 
         replies.forEach(function (reply) {
             html += '<li data-theme="c" '
                 + 'id="' + 'reply-' + reply.reply_id + '" ' 
                 + 'class="status-reply comment-' + reply.status_id + ' shout" '
+                + ' style="display:none;" '
                 + '>'
                 + '[' + reply.date + '] ' + reply.author + ' says: '
                 + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
@@ -175,6 +175,16 @@ load_wall = function () {
         html += '    </div>';
         html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Reply!</button>';
         html += '</div>';
+        return html;
+    };
+    
+    show_replies = function (status_id, replies) {
+        var html = '';
+        html += '<div style="display="inline">Replies ('
+                + ((replies.length)?replies.length:'0')
+                + ') ';
+        html += '<button onclick="toggle_hide(\'' + status_id
+                + '\');">Show / Hide</button></div>';
         return html;
     };
 };

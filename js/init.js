@@ -1,5 +1,14 @@
 var DEBUG = false;
 
+Storage.prototype.setObject = function(key, value) {
+    this.setItem(key, JSON.stringify(value));
+};
+
+Storage.prototype.getObject = function(key) {
+    var value = this.getItem(key);
+    return value && JSON.parse(value);
+};
+
 // Verifying if there are stored settings.
 var hasStoredSettings = localStorage.getItem('user');
 if (DEBUG) console.log('ACTIVE_USER == ' + ACTIVE_USER);
