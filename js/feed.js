@@ -14,26 +14,6 @@ var LAST_FM         = new LastFM({
 jQuery(document).ready(function() {
     try {
         $(function() {
-            /*
-            var authURL = 'http://www.last.fm/api/auth/?api_key='
-                + API_KEY + '&cb=' + window.location;
-            var token = '';
-            if (!$.url().param('token')) {
-                window.location = authURL;
-            } else {
-                token = $.url().param('token');
-                
-                LAST_FM.auth.getSession({
-                    token: token
-                }, {
-                    success: function(data) {
-                        SESSION_KEY = data.session.key;
-                        load_wall();
-                    },
-                    error : function (data) {}
-                });
-            }
-            */
             load_wall();
         });
     } catch (exception) {

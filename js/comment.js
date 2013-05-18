@@ -47,7 +47,7 @@ LAST_FM.artist.getInfo({
                         + ((playcount > 1)?' times to ':' time to ')
                         + recommendation + '.';
                 } else {
-                    html += author + ' recommended this artist, but has not listened to this artist yet.'
+                    html += author + ' recommended this artist, but has not listened to this artist yet.';
                 }
                 html += '</p>';
 
@@ -61,10 +61,12 @@ LAST_FM.artist.getInfo({
 
                 jQuery('#comment').append(html);
             },
-            error : function (data) {}
+            error : function (error, msg) {
+                jQuery('#comment').append('<p>' + msg + '</p>');
+            }
         });
-        
-        
     },
-    error : function (data) {}
+    error : function (error, msg) {
+        jQuery('#comment').append('<p>' + msg + '</p>');
+    }
 });
