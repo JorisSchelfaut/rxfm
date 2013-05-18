@@ -37,14 +37,20 @@ LAST_FM.artist.getInfo({
                 html += author + ' recommends <a href="' + url + '" target="_blank">' + recommendation + '</a>';
                 html += '</p>';
                 html += '<p>';
-                html += author + ' recommended this artist and has listened ' + playcount
-                        + ' times to ' + recommendation + '.';
+                if (playcount) {
+                    html += author + ' recommended this artist and has listened ' + playcount
+                        + ((playcount > 1)?' times to ':' time to ')
+                        + recommendation + '.';
+                } else {
+                    html += author + ' recommended this artist, but has not listened to this artist yet.'
+                }
                 html += '</p>';
 
                 html += '<p>';
                 html += 'Last.fm recommends the following artists for <em>' + artist + '</em>:<ul>';
                 data.artist.similar.artist.forEach(function (a) {
-                    html += '<li>' + a.name + '</li>';
+                    html += '<li><a href="' + a.url
+                            + '" target="_blank">' + a.name + '</a>' + '</li>';
                 });
                 html += '</ul></p>';
 

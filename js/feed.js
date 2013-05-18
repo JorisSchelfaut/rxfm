@@ -147,7 +147,7 @@ load_wall = function () {
 
         html += '<li data-theme="c" id="' + 'status-' + status.status_id
                 + '" class="status-update shout">'
-                + '<h4>[' + status.date + ']' + status.author + ':</h4>'
+                + '<h4>[' + status.date + '] ' + status.author + ':</h4>'
                 + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
                 + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
                 + show_inputform(status.status_id, status.author)
@@ -158,7 +158,7 @@ load_wall = function () {
                 + 'id="' + 'reply-' + reply.reply_id + '" ' 
                 + 'class="status-reply comment-' + reply.status_id + ' shout" '
                 + '>'
-                + '[' + reply.date + ']' + reply.author + ' says: '
+                + '[' + reply.date + '] ' + reply.author + ' says: '
                 + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message;
                 + '</li>';
         });

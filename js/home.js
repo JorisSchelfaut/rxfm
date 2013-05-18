@@ -1,6 +1,5 @@
-var DEBUG           = true;
-var KEY = 'user';
-var ACTIVE_USER = localStorage.getItem(KEY);
+var DEBUG = true;
+var ACTIVE_USER = localStorage.getItem('user');
 var SESSION_KEY = localStorage.getItem('session-' + ACTIVE_USER);
 var CHANNEL         = '@RXFM';
 var API_KEY         = 'a7eec810bcefeb721b140a929b474983';
@@ -11,43 +10,74 @@ var LAST_FM         = new LastFM({
     cache       : new LastFMCache(),
     apiUrl      : 'http://ws.audioscrobbler.com/2.0/'
 });
-
-/*
-$("#new-status-artist").on("listviewbeforefilter", function (e, data) {
-    var $ul = $(this),
-        $input = $(data.input),
-        value = $input.val(),
-        html = "";
-    $ul.html("");
-    if (value && value.length > 2) {
-            $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
-            $ul.listview("refresh");
-
-            var ARTISTS = ['Animals as Leaders', 'Daft Punk',
-                'Depeche Mode', 'deus',
-                'Noir Desir', 'Noisedriver','Placebo', 
-                'Pendulum', 'Tool', 'Wren'];
-
-            $.each(ARTISTS, function (i, val) {
-                html += "<li>" + '<a href="">' + val + '</a>' + "</li>";
-            });
-            $ul.html(html);
-            $ul.listview("refresh");
-            $ul.trigger("updatelayout");
-    }
-});
-*/
+var $ul;
+var $input;
+var ARTISTS = [];
 
 jQuery(document).ready(function() {
     try {
         $(function() {
-            load_wall();
+            
+            loadLibrary(function () {
+                $("#new-status-artist").on("listviewbeforefilter", function (e, data) {
+                    $ul = $(this);
+                    $input = $(data.input);
+                    var value = $input.val();
+                    var html = "";
+                    $ul.html("");
+                    if (value && value.length > 2) {
+                            $ul.html("<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                            $ul.listview("refresh");
+                            $.each(ARTISTS, function (i, val) {
+                                html += "<li>"
+                                        + '<a ' + ' href="#" '
+                                        + ' data-role="button" '
+                                        + ' data-icon="arrow-r" data-iconpos="right" ' 
+                                        + ' data-theme="a" rel="external" '
+                                        + ' onclick="complete(\'' + val
+                                        + '\'); return false" '
+                                        + '>' + val + '</a>' + "</li>";
+                            });
+                            $ul.html(html);
+                            $ul.listview("refresh");
+                            $ul.trigger("updatelayout");
+                    }
+                });
+                load_wall();
+            });
         });
     } catch (exception) {
         console.error("An exception occurred : " + exception);
     }
 });
 
+function loadLibrary (callback) {
+    LAST_FM.library.getArtists({
+        limit : 200,
+        user : ACTIVE_USER
+    },{
+        success : function (data) {
+            data.artists.artist.forEach(function (a) {
+                ARTISTS.push(a.name);
+            });
+            callback();
+        }, error : function () {}
+    });
+}
+
+/**
+ * Selecting a completion suggestion.
+ * @param {type} value
+ * @returns {undefined}
+ */
+complete = function (value) {
+    // Dismiss the completion suggestions list.
+    $ul.html('');
+    $ul.listview("refresh");
+    $ul.trigger("updatelayout");
+    // Set the input value to the selected suggestion.
+    $input.val(value);
+};
 
 /**
 * The result of the Last.fm API call looks as follows :
@@ -158,6 +188,7 @@ statuslayout = function (obj) {
     var replies = obj.replies;
     
     html += '<li data-theme="c" id="' + 'status-' + status.status_id + '" class="status-update shout">'
+            + '[' + status.date + '] '
             + 'I\'m looking for music similar to <em>' + status.artist + '</em>! ' + status.message
             + '<button onclick="toggle_hide(\'' + status.status_id + '\');">Show / Hide Comments</button>'
             + '</li>';
@@ -172,6 +203,7 @@ statuslayout = function (obj) {
             + '" data-transition="slide" '
             + 'data-ajax="false" '
             + '>'
+            + '[' + reply.date + '] '
             + reply.author + ' says: '
             + 'Check out: <em>' + reply.artist + '</em>! ' + reply.message
             + '</a>'
@@ -180,10 +212,16 @@ statuslayout = function (obj) {
     return html;
 };
 
+/**
+ * Create a new status.
+ * @returns {undefined}
+ */
 new_status = function () {
-    var artist = $('input[name=artist]', '#new-status').val();
+    //var artist = $('input[name=artist]', '#new-status').val();
+    var artist = $input.val();
     if (artist.toString() !== '') {
-        $('input[name=artist]', '#new-status').val('');
+        //$('input[name=artist]', '#new-status').val('');
+        $input.val('');
         var user = ACTIVE_USER;
         var status_id = (artist + user + new Date().toDateString()).toString().hashCode();
         var message = CHANNEL + '{'
