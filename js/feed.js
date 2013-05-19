@@ -21,17 +21,6 @@ jQuery(document).ready(function() {
     }
 });
 
-toggle_hide = function(status_id) {
-    if (DEBUG) console.log("feed.js#toggle_hide");
-    if (jQuery('#status-' + status_id).hasClass('show-replies')) {
-        jQuery('#status-' + status_id).attr('data-icon', 'arrow-d');
-    } else {
-        jQuery('#status-' + status_id).addClass('show-replies');
-        jQuery('#status-' + status_id).attr('data-icon', 'arrow-u');
-    }
-    jQuery('.comment-' + status_id).toggle();
-};
-
 /**
  * Loads the recent status updates from friends.
  * @returns {load_wall}
@@ -184,7 +173,7 @@ load_wall = function () {
         var html = '';
         html += '<div id="new-reply-' + status_id + '">';
         html += '    <input name="artist" placeholder="" value="" type="text" class="artist-input"/>';
-        html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Reply!</button>';
+        html += '    <button onclick="new_reply(\'' + status_id + '\',\'' + recipient + '\')">Recommend artist!</button>';
         html += '</div>';
         return html;
     };
@@ -200,6 +189,16 @@ load_wall = function () {
  */
 clear_wall = function () {
     jQuery('.shout').remove();
+    return;
+};
+
+/**
+ * <p>Refreshes the feed.</p>
+ * @returns {undefined}
+ */
+refresh = function () {
+    clear_wall();
+    load_wall();
     return;
 };
 
@@ -224,10 +223,10 @@ new_reply = function (status_id, recipient) {
         if (DEBUG) console.log(message);
         LAST_FM.user.shout({ user : user, message : message }, {key : SESSION_KEY}, {
             success : function (data) {
-                console.log("success.");
+                if (DEBUG) console.log("success.");
                 refresh();
             },
-            error : function (data) { console.error(data); }
+            error : function (code, msg) { console.error('Exception [' + code + '] : ' + msg); }
         });
     }
 };
@@ -241,23 +240,4 @@ String.prototype.hashCode = function(){
        hash = hash & hash; // Convert to 32bit integer
    }
    return hash;
-};
-
-/**
- * <p>Refreshes the feed.</p>
- * @returns {undefined}
- */
-refresh = function () {
-    clear_wall();
-    load_wall();
-    return;
-};
-
-/**
- * Shows the reply form for a given status.
- * @param {type} status_id
- * @returns {undefined}
- */
-show_form = function (status_id) {
-    jQuery('#new-reply-' + status_id).toggle();
 };

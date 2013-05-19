@@ -45,7 +45,7 @@ getInfo(recommendation, author, function (a1) {
             }
             html += '</p>';
             
-            html += '<p>Top tracks for this <strong>' + recommendation + '</strong>:';
+            html += '<p>Top tracks for <strong>' + recommendation + '</strong>:';
             html += '<ul>';
             tracks.forEach(function (track) {
                 html += '<li>';
@@ -58,7 +58,7 @@ getInfo(recommendation, author, function (a1) {
             html += '</p>';
 
             html += '<p>';
-            html += 'Last.fm recommends the following artists for <strong>' + artist + '</strong>:<ul>';
+            html += '<em>Last.fm</em> recommends the following artists for <strong>' + artist + '</strong>:<ul>';
             a2.similar.artist.forEach(function (a) {
                 html += '<li><a href="' + a.url
                         + '" target="_blank">' + a.name + '</a>' + '</li>';
