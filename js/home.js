@@ -226,7 +226,7 @@ statuslayout = function (obj) {
             + '>'
             + '<h2>'
             + 'Looking for music similar to "' + status.artist + '".';
-    html += ((new_replies > 0)?('<span class="ui-li-count">' + new_replies + '</span>'):'');
+    html += ((new_replies > 0)?('<span class="ui-li-count">' + new_replies + ' new</span>'):'');
     html += ' </h2>';
     html += '   <ul class="shouts-list" data-role="listview" data-theme="d" data-divider-theme="d">';
     html += '<li data-role="list-divider">' + status.date;
